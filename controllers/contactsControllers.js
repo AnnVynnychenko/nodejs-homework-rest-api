@@ -1,15 +1,9 @@
-const {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-} = require("../models/contacts");
 const HttpError = require("../helpers/HttpError");
+const Contact = require("../models/contact");
 
 const getAllContacts = async (req, res, next) => {
   try {
-    const contacts = await listContacts();
+    const contacts = await Contact.find();
     res.json(contacts);
   } catch (error) {
     next(error);
@@ -19,10 +13,10 @@ const getAllContacts = async (req, res, next) => {
 const getContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!id) {
-      throw new HttpError(404, "Not found");
+    const contact = await Contact.findById(id);
+    if (!contact) {
+      throw new HttpError(404, "Contact not found");
     }
-    const contact = await getContactById(id);
     res.json(contact);
   } catch (error) {
     next(error);
@@ -33,10 +27,10 @@ const deleteContact = async (req, res, next) => {
   try {
     const { id } = req.params;
     if (!id) {
-      throw new HttpError(404, "Not found");
+      throw new HttpError(404, "Contact not found");
     }
     if (id) {
-      await removeContact(id);
+      await Contact.findByIdAndDelete(id);
       res.status(200).json({ message: "contact deleted" });
     }
   } catch (error) {
@@ -50,7 +44,7 @@ const createContact = async (req, res, next) => {
     if (!name || !email || !phone) {
       throw new HttpError(400, "Missing required name field");
     }
-    const newContact = await addContact(req.body);
+    const newContact = await Contact.create(req.body);
     res.status(201).json(newContact);
   } catch (error) {
     next(error);
@@ -61,12 +55,32 @@ const updateContactBody = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { body } = req;
-    if (!body) {
-      throw new HttpError(400, "Missing fields");
+    const updatedContact = await Contact.findByIdAndUpdate(id, body, {
+      new: true,
+    });
+    if (!updatedContact) {
+      throw new HttpError(404, "Contact not found");
     }
-    const updatedContact = await updateContact(id, body);
     if (updatedContact) {
       res.status(200).json(updatedContact);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateFavoriteContact = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { body } = req;
+    const updatedFavoriteContact = await Contact.findByIdAndUpdate(id, body, {
+      new: true,
+    });
+    if (!updatedFavoriteContact) {
+      throw new HttpError(400, "Missing fields");
+    }
+    if (updatedFavoriteContact) {
+      res.status(200).json(updatedFavoriteContact);
     }
   } catch (error) {
     next(error);
@@ -79,4 +93,5 @@ module.exports = {
   deleteContact,
   createContact,
   updateContactBody,
+  updateFavoriteContact,
 };

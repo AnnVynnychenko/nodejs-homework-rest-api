@@ -1,13 +1,5 @@
 const mongoose = require("mongoose");
 
-mongoose.connect(
-  "mongodb+srv://Anna:HHoFjhS0OWtzlVuI@cluster0.gtb2cak.mongodb.net/db-contacts?retryWrites=true&w=majority",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
-
 const { Schema, model } = mongoose;
 
 const contactSchema = new Schema({
@@ -24,6 +16,11 @@ const contactSchema = new Schema({
   favorite: {
     type: Boolean,
     default: false,
+  },
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: "user",
+    required: true,
   },
 });
 

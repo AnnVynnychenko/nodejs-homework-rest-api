@@ -1,8 +1,8 @@
 const { ctrlWrapper, HttpError } = require("../helpers");
-
 const User = require("../models/user");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
 
 const { SECRET_KEY } = process.env;
 
@@ -13,7 +13,12 @@ const register = async (req, res) => {
     throw new HttpError(409, "Email already in use");
   }
   const hashPassword = await bcryptjs.hash(password, 10);
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const avatarURL = gravatar.url(email);
+  const newUser = await User.create({
+    ...req.body,
+    password: hashPassword,
+    avatarURL,
+  });
   res
     .status(201)
     .json({ email: newUser.email, subscription: newUser.subscription });

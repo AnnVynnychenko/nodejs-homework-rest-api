@@ -33,6 +33,8 @@ const deleteContact = async (req, res, next) => {
 };
 
 const createContact = async (req, res, next) => {
+  console.log(req.body);
+  console.log(req.file);
   const { _id: owner } = req.user;
   const { name, email, phone } = req.body;
   if (!name || !email || !phone) {
